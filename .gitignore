@@ -1,6 +1,7 @@
 # Environments
 venv/
 .env
+.idea
 
 # Python compilation files
 __pycache__/

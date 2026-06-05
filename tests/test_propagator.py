@@ -45,14 +45,17 @@ def test_detect_decay_worker_finds_decay(mocker):
     # Construct fake geodetic data where elevation drops below 105km at index 1
     mock_geodetic = MagicMock()
     mock_geodetic.elevation.km = np.array([150.0, 100.0, 90.0])
+    mock_geodetic.elevation.m = np.array([150000.0, 100000.0, 90000.0])
     mock_geodetic.latitude.degrees = np.array([45.0, 46.0, 47.0])
     mock_geodetic.longitude.degrees = np.array([-104.0, -105.0, -106.0])
 
     mock_wgs84.return_value = mock_geodetic
 
     # Create a fake timescale array
-    mock_timescale = [MagicMock(), MagicMock(), MagicMock()]
-    mock_timescale[1].utc_iso.return_value = "2026-06-02T13:00:00Z"
+    mock_timescale = MagicMock()
+    sliced_timescale = MagicMock()
+    sliced_timescale.utc_iso.return_value = ["2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
+    mock_timescale.__getitem__.return_value = sliced_timescale
 
     # Create a fake satrec with a catalog ID
     fake_satrec = MagicMock()
@@ -65,9 +68,12 @@ def test_detect_decay_worker_finds_decay(mocker):
     # Assertions
     assert result is not None
     assert result["catalog_id"] == 99999
-    assert result["decay_time"] == "2026-06-02T13:00:00Z"
-    assert result["latitude"] == 46.0  # Should grab the value at index 1
-    assert result["longitude"] == -105.0
+    assert len(result['trajectory']) == 2
+    assert len(result['altitudes']) == 2
+    assert len(result['timestamps']) == 2
+    assert result['trajectory'] == [[-104.0,45.0],[-105.0,46.0]]
+    assert result['altitudes'] == [150000.0, 100000.0]
+    assert result['timestamps'] == ["2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
 
 
 def test_detect_decay_worker_no_decay(mocker):

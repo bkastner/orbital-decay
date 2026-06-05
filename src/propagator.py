@@ -32,13 +32,25 @@ def _detect_decay_worker(satrec, timescale):
     if len(decay_indices) == 0:
         return None
 
-    decay_idx = decay_indices[0]
+    # We want the last coordinate to be the one immediately after decay
+    first_decay_idx = decay_indices[0]
+    slice_index = first_decay_idx + 1
+
+    if slice_index < 2:
+        return None
+
+    lons = geodetic.longitude.degrees[:slice_index]
+    lats = geodetic.latitude.degrees[:slice_index]
+    alts = geodetic.elevation.m[:slice_index]
+    times = timescale[:slice_index].utc_iso()
+
+    trajectory_coords = [[float(lon), float(lat)] for lon, lat in zip(lons, lats)]
 
     return {
         "catalog_id": satellite.model.satnum,
-        "decay_time": timescale[decay_idx].utc_iso(),
-        "latitude": geodetic.latitude.degrees[decay_idx],
-        "longitude": geodetic.longitude.degrees[decay_idx]
+        "trajectory": trajectory_coords,
+        "altitudes": [float(a) for a in alts],
+        "timestamps": times,
     }
 
 

@@ -28,9 +28,9 @@ def test_build_time_window(mocker):
     assert args == (2026, 6, 2)
 
     # Verify we requested exactly 336 steps
-    assert len(kwargs['hours']) == 336
-    assert kwargs['hours'][0] == 0.0  # T+0 hours
-    assert kwargs['hours'][1] == 0.5  # T+0.5 hours
+    assert len(kwargs['hour']) == 336
+    assert kwargs['hour'][0] == 0.0  # T+0 hours
+    assert kwargs['hour'][1] == 0.5  # T+0.5 hours
 
 
 def test_detect_decay_worker_finds_decay(mocker):

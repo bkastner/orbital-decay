@@ -26,7 +26,7 @@ def test_get_active_catalog_success(mocker):
     mock_response.__iter__.return_value = [b"line1\nline2\n"]
 
     mocker.patch.object(client.http, 'request', return_value=mock_response)
-    mocker.patch.object(client, 'parse_omm_stream', return_value='success')
+    mocker.patch.object(client, 'parse_omm_stream', return_value=['success'])
 
     response = list(client.get_active_catalog())
     assert response == ['success']

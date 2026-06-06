@@ -36,9 +36,6 @@ def _detect_decay_worker(satrec, timescale):
     first_decay_idx = decay_indices[0]
     slice_index = first_decay_idx + 1
 
-    if slice_index < 2:
-        return None
-
     lons = geodetic.longitude.degrees[:slice_index]
     lats = geodetic.latitude.degrees[:slice_index]
     alts = geodetic.elevation.m[:slice_index]
@@ -59,6 +56,7 @@ def orchestrator(satellite_records):
     time_arr = _build_time_window()
     worker = partial(_detect_decay_worker, timescale=time_arr)
 
+    decayed_satellites_with_trajectory = []
     decayed_satellites = []
 
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
@@ -68,9 +66,12 @@ def orchestrator(satellite_records):
         # Filter out the None values where no decay was detected
         for event in results:
             if event is not None:
-                decayed_satellites.append(event)
+                if len(event['trajectory']) > 1:
+                    decayed_satellites_with_trajectory.append(event)
+                else:
+                    decayed_satellites.append(event)
 
-    return decayed_satellites
+    return decayed_satellites_with_trajectory, decayed_satellites
 
 
 

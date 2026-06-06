@@ -17,7 +17,7 @@ def _build_time_window():
     ts = load.timescale()
 
     now = datetime.now(timezone.utc)
-    return ts.utc(now.year, now.month, now.day, hours=[h * 0.5 for h in range(336)])
+    return ts.utc(now.year, now.month, now.day, hour=[h * 0.5 for h in range(336)])
 
 def _detect_decay_worker(satrec, timescale):
     satellite = EarthSatellite.from_satrec(satrec, timescale)

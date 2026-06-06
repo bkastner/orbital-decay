@@ -76,6 +76,44 @@ def test_detect_decay_worker_finds_decay(mocker):
     assert result['timestamps'] == ["2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
 
 
+def test_detect_decay_worker_finds_decay_last_coordinate(mocker):
+    """
+    Simulates a satellite dropping below 105 km at the far end of our time window and
+    ensures the correct dictionary is returned.
+    """
+    # Mock the dependencies
+    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
+    mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
+
+    # Construct fake geodetic data where elevation drops below 105km at index 2
+    mock_geodetic = MagicMock()
+    mock_geodetic.elevation.km = np.array([150.0, 110.0, 90.0])
+    mock_geodetic.elevation.m = np.array([150000.0, 110000.0, 90000.0])
+    mock_geodetic.latitude.degrees = np.array([45.0, 46.0, 47.0])
+    mock_geodetic.longitude.degrees = np.array([-104.0, -105.0, -106.0])
+
+    mock_wgs84.return_value = mock_geodetic
+
+    # Create a fake timescale array
+    mock_timescale = MagicMock()
+    sliced_timescale = MagicMock()
+    sliced_timescale.utc_iso.return_value = ["2026-06-02T12:00:00Z","2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
+    mock_timescale.__getitem__.return_value = sliced_timescale
+
+    # Create a fake satrec with a catalog ID
+    fake_satrec = MagicMock()
+    # We also need to mock the satellite model inside from_satrec so it returns the ID
+    mock_from_satrec.return_value.model.satnum = 99999
+
+    result = _detect_decay_worker(fake_satrec, mock_timescale)
+    assert result is not None
+    assert result["catalog_id"] == 99999
+    assert len(result['trajectory']) == 3
+    assert len(result['altitudes']) == 3
+    assert len(result['timestamps']) == 3
+    assert result['trajectory'] == [[-104.0, 45.0], [-105.0, 46.0], [-106.0, 47.0]]
+    assert result['altitudes'] == [150000.0, 110000.0, 90000.0]
+    assert result['timestamps'] == ["2026-06-02T12:00:00Z","2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
 def test_detect_decay_worker_no_decay(mocker):
     """
     Simulates a stable orbit > 105 km and ensures None is returned.

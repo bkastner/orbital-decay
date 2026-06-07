@@ -4,20 +4,18 @@ from src.celestrak_client import CelestrakClient
 
 def test_parse_omm_stream_filters_num_orbits(mocker):
     mock_csv_parser = mocker.patch('src.celestrak_client.omm.parse_csv')
-    mocker.patch('src.celestrak_client.Satrec')
-
-    mock_omm_initialize = mocker.patch('src.celestrak_client.omm.initialize')
 
     mock_csv_parser.return_value = [
-        {'MEAN_MOTION': '14.1'},  # Keep
-        {'MEAN_MOTION': '14.0'},  # Keep
-        {'MEAN_MOTION': '13.9'}   # Drop
+        {'MEAN_MOTION': '14.1', 'OBJECT_ID': '1'},  # Keep
+        {'MEAN_MOTION': '14.0', 'OBJECT_ID': '2'},  # Keep
+        {'MEAN_MOTION': '13.9', 'OBJECT_ID': '3'}  # Drop
         ]
 
     result = list(CelestrakClient().parse_omm_stream(MagicMock()))
-    assert len(result) == 2
-    assert mock_omm_initialize.call_count == 2
 
+    assert len(result) == 2
+    assert result[0]['OBJECT_ID'] == '1'
+    assert result[1]['OBJECT_ID'] == '2'
 
 def test_get_active_catalog_success(mocker):
     client = CelestrakClient()

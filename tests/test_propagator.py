@@ -39,6 +39,8 @@ def test_detect_decay_worker_finds_decay(mocker):
     dictionary is returned.
     """
     # Mock the dependencies
+    mocker.patch('src.propagator.Satrec')
+    mocker.patch('src.propagator.omm.initialize')
     mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
@@ -52,18 +54,18 @@ def test_detect_decay_worker_finds_decay(mocker):
     mock_wgs84.return_value = mock_geodetic
 
     # Create a fake timescale array
+    mock_ts = MagicMock()
     mock_timescale = MagicMock()
     sliced_timescale = MagicMock()
     sliced_timescale.utc_iso.return_value = ["2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
     mock_timescale.__getitem__.return_value = sliced_timescale
 
-    # Create a fake satrec with a catalog ID
-    fake_satrec = MagicMock()
+    fake_omm_dict = {"MEAN_MOTION": "15.0"}
     # We also need to mock the satellite model inside from_satrec so it returns the ID
     mock_from_satrec.return_value.model.satnum = 99999
 
     # Execute the function
-    result = _detect_decay_worker(fake_satrec, mock_timescale)
+    result = _detect_decay_worker(fake_omm_dict, mock_ts, mock_timescale)
 
     # Assertions
     assert result is not None
@@ -82,6 +84,8 @@ def test_detect_decay_worker_finds_decay_last_coordinate(mocker):
     ensures the correct dictionary is returned.
     """
     # Mock the dependencies
+    mocker.patch('src.propagator.Satrec')
+    mocker.patch('src.propagator.omm.initialize')
     mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
@@ -95,17 +99,17 @@ def test_detect_decay_worker_finds_decay_last_coordinate(mocker):
     mock_wgs84.return_value = mock_geodetic
 
     # Create a fake timescale array
+    mock_ts = MagicMock()
     mock_timescale = MagicMock()
     sliced_timescale = MagicMock()
     sliced_timescale.utc_iso.return_value = ["2026-06-02T12:00:00Z","2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
     mock_timescale.__getitem__.return_value = sliced_timescale
 
-    # Create a fake satrec with a catalog ID
-    fake_satrec = MagicMock()
+    fake_omm_dict = {"MEAN_MOTION": "15.0"}
     # We also need to mock the satellite model inside from_satrec so it returns the ID
     mock_from_satrec.return_value.model.satnum = 99999
 
-    result = _detect_decay_worker(fake_satrec, mock_timescale)
+    result = _detect_decay_worker(fake_omm_dict, mock_ts, mock_timescale)
     assert result is not None
     assert result["catalog_id"] == 99999
     assert len(result['trajectory']) == 3
@@ -121,6 +125,8 @@ def test_detect_decay_worker_finds_decay_first_coordinate(mocker):
     ensures the correct dictionary is returned.
     """
     # Mock the dependencies
+    mocker.patch('src.propagator.Satrec')
+    mocker.patch('src.propagator.omm.initialize')
     mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
@@ -134,17 +140,17 @@ def test_detect_decay_worker_finds_decay_first_coordinate(mocker):
     mock_wgs84.return_value = mock_geodetic
 
     # Create a fake timescale array
+    mock_ts = MagicMock()
     mock_timescale = MagicMock()
     sliced_timescale = MagicMock()
     sliced_timescale.utc_iso.return_value = ["2026-06-02T12:00:00Z"]
     mock_timescale.__getitem__.return_value = sliced_timescale
 
     # Create a fake satrec with a catalog ID
-    fake_satrec = MagicMock()
-    # We also need to mock the satellite model inside from_satrec so it returns the ID
+    fake_omm_dict = {"MEAN_MOTION": "15.0"}    # We also need to mock the satellite model inside from_satrec so it returns the ID
     mock_from_satrec.return_value.model.satnum = 99999
 
-    result = _detect_decay_worker(fake_satrec, mock_timescale)
+    result = _detect_decay_worker(fake_omm_dict, mock_ts, mock_timescale)
     assert result is not None
     assert result["catalog_id"] == 99999
     assert len(result['trajectory']) == 1
@@ -158,6 +164,8 @@ def test_detect_decay_worker_no_decay(mocker):
     """
     Simulates a stable orbit > 105 km and ensures None is returned.
     """
+    mocker.patch('src.propagator.Satrec')
+    mocker.patch('src.propagator.omm.initialize')
     mocker.patch("src.propagator.EarthSatellite.from_satrec")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
@@ -166,7 +174,7 @@ def test_detect_decay_worker_no_decay(mocker):
     mock_geodetic.elevation.km = np.array([400.0, 399.0, 398.0])
     mock_wgs84.return_value = mock_geodetic
 
-    result = _detect_decay_worker(MagicMock(), [MagicMock(), MagicMock(), MagicMock()])
+    result = _detect_decay_worker(MagicMock(), MagicMock(), [MagicMock(), MagicMock(), MagicMock()])
 
     assert result is None
 
@@ -190,7 +198,7 @@ def test_orchestrator_filters_results(mocker):
     mock_executor.return_value.__enter__.return_value.map.return_value = fake_map_results
 
     # Mock the time window to avoid executing actual timescale logic
-    mocker.patch("src.propagator._build_time_window")
+    mocker.patch("src.propagator._build_time_window", return_value=(MagicMock(), MagicMock()))
 
     # Execute
     with_trajectory, without_trajectory = orchestrator(["fake_sat_1", "fake_sat_2", "fake_sat_3", "fake_sat_4"])

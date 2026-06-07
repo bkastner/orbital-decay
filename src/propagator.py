@@ -58,7 +58,7 @@ def _detect_decay_worker(omm_dict, time_scale, time_array):
 
 def orchestrator(satellite_records):
     time_scale, time_arr = _build_time_window()
-    worker = partial(_detect_decay_worker, time_scale=time_scale, time_arr=time_arr)
+    worker = partial(_detect_decay_worker, time_scale=time_scale, time_array=time_arr)
 
     decayed_satellites_with_trajectory = []
     decayed_satellites = []

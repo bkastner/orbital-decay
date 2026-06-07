@@ -8,7 +8,8 @@ from skyfield.api import EarthSatellite, Loader
 from skyfield.toposlib import wgs84
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timezone
-
+from sgp4 import omm
+from sgp4.api import Satrec
 from functools import partial
 
 def _build_time_window():
@@ -17,12 +18,15 @@ def _build_time_window():
     ts = load.timescale()
 
     now = datetime.now(timezone.utc)
-    return ts.utc(now.year, now.month, now.day, hour=[h * 0.5 for h in range(336)])
+    return ts, ts.utc(now.year, now.month, now.day, hour=[h * 0.5 for h in range(336)])
 
-def _detect_decay_worker(satrec, timescale):
-    satellite = EarthSatellite.from_satrec(satrec, timescale)
+def _detect_decay_worker(omm_dict, time_scale, time_array):
+    satrec = Satrec()
+    omm.initialize(satrec, omm_dict)
 
-    geocentric = satellite.at(timescale)
+    satellite = EarthSatellite.from_satrec(satrec, time_scale)
+
+    geocentric = satellite.at(time_array)
     geodetic = wgs84.geographic_position_of(geocentric)
 
     elevations = geodetic.elevation.km
@@ -39,7 +43,7 @@ def _detect_decay_worker(satrec, timescale):
     lons = geodetic.longitude.degrees[:slice_index]
     lats = geodetic.latitude.degrees[:slice_index]
     alts = geodetic.elevation.m[:slice_index]
-    times = timescale[:slice_index].utc_iso()
+    times = time_array[:slice_index].utc_iso()
 
     trajectory_coords = [[float(lon), float(lat)] for lon, lat in zip(lons, lats)]
 
@@ -53,8 +57,8 @@ def _detect_decay_worker(satrec, timescale):
 
 
 def orchestrator(satellite_records):
-    time_arr = _build_time_window()
-    worker = partial(_detect_decay_worker, timescale=time_arr)
+    time_scale, time_arr = _build_time_window()
+    worker = partial(_detect_decay_worker, time_scale=time_scale, time_arr=time_arr)
 
     decayed_satellites_with_trajectory = []
     decayed_satellites = []

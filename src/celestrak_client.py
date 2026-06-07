@@ -5,7 +5,6 @@ import io
 import urllib3
 import logging
 from sgp4 import omm
-from sgp4.api import Satrec
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +52,4 @@ class CelestrakClient:
             if float(fields['MEAN_MOTION']) < 14.0:
                 continue
 
-            satellite = Satrec()
-            omm.initialize(satellite, fields)
-            yield satellite
+            yield fields

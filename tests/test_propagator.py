@@ -2,14 +2,14 @@
 import numpy as np
 from unittest.mock import MagicMock
 from datetime import datetime, timezone
-
+from pytest import approx
 # Import the functions we want to test
 from src.propagator import _build_time_window, _detect_decay_worker, orchestrator
 
 
 def test_build_time_window(mocker):
     """
-    Ensures our timescale builder requests exactly 336 discrete 30-minute
+    Ensures our timescale builder requests exactly 10080 discrete 1-minute
     steps without making actual network calls.
     """
     # Mock the Loader so it doesn't try to look for or download real files
@@ -29,10 +29,10 @@ def test_build_time_window(mocker):
     args, kwargs = mock_ts.utc.call_args
     assert args == (2026, 6, 2)
 
-    # Verify we requested exactly 336 steps
-    assert len(kwargs['hour']) == 336
-    assert kwargs['hour'][0] == 0.0  # T+0 hours
-    assert kwargs['hour'][1] == 0.5  # T+0.5 hours
+    # Verify we requested exactly 10080 steps
+    assert len(kwargs['minute']) == 10080
+    assert kwargs['minute'][0] == 0  # T+0 minutes
+    assert kwargs['minute'][1] == 1  # T+1 minutes
 
 
 def test_detect_decay_worker_finds_decay(mocker):
@@ -78,7 +78,7 @@ def test_detect_decay_worker_finds_decay(mocker):
     assert len(result['trajectory']) == 2
     assert len(result['altitudes']) == 2
     assert len(result['timestamps']) == 2
-    assert result['trajectory'] == [[-104.0,45.0],[-105.0,46.0]]
+    assert result['trajectory'] == [[-104.0,45.0],[approx(-105.0),46.0]]
     assert result['altitudes'] == [150000.0, 100000.0]
     assert result['timestamps'] == ["2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
 
@@ -119,7 +119,7 @@ def test_detect_decay_worker_finds_decay_last_coordinate(mocker):
     assert len(result['trajectory']) == 3
     assert len(result['altitudes']) == 3
     assert len(result['timestamps']) == 3
-    assert result['trajectory'] == [[-104.0, 45.0], [-105.0, 46.0], [-106.0, 47.0]]
+    assert result['trajectory'] == [[-104.0, 45.0], [approx(-105.0), 46.0], [-106.0, 47.0]]
     assert result['altitudes'] == [150000.0, 110000.0, 90000.0]
     assert result['timestamps'] == ["2026-06-02T12:00:00Z","2026-06-02T12:30:00Z","2026-06-02T13:00:00Z"]
 

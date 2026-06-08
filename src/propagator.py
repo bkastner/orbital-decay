@@ -18,7 +18,7 @@ def _build_time_window():
     ts = load.timescale()
 
     now = datetime.now(timezone.utc)
-    return ts, ts.utc(now.year, now.month, now.day, hour=[h * 0.5 for h in range(336)])
+    return ts, ts.utc(now.year, now.month, now.day, minute=range(10080))
 
 def _detect_decay_worker(omm_dict, time_scale, time_array):
     satrec = Satrec()
@@ -39,13 +39,18 @@ def _detect_decay_worker(omm_dict, time_scale, time_array):
     # We want the last coordinate to be the one immediately after decay
     first_decay_idx = decay_indices[0]
     slice_index = first_decay_idx + 1
+    start_index = max(0,first_decay_idx-15)
 
-    lons = geodetic.longitude.degrees[:slice_index]
-    lats = geodetic.latitude.degrees[:slice_index]
-    alts = geodetic.elevation.m[:slice_index]
-    times = time_array[:slice_index].utc_iso()
+    lons = geodetic.longitude.degrees[start_index:slice_index]
+    lats = geodetic.latitude.degrees[start_index:slice_index]
+    alts = geodetic.elevation.m[start_index:slice_index]
+    times = time_array[start_index:slice_index].utc_iso()
 
-    trajectory_coords = [[float(lon), float(lat)] for lon, lat in zip(lons, lats)]
+    lons_rad = numpy.deg2rad(lons)
+    unwrapped_lons_rad = numpy.unwrap(lons_rad)
+    unwrapped_lons = numpy.rad2deg(unwrapped_lons_rad)
+
+    trajectory_coords = [[float(lon), float(lat)] for lon, lat in zip(unwrapped_lons, lats)]
 
     return {
         "catalog_id": satellite.model.satnum,

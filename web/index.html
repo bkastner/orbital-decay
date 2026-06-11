@@ -42,7 +42,6 @@
 <div id="map"></div>
 
 <script>
-    // 1. Insert your Mapbox Token here
     mapboxgl.accessToken = 'pk.eyJ1IjoiY2FjdHVzYmx1ZSIsImEiOiJja3l3aGFhZ2IwOGllMm9rZm83NHVkOTFtIn0.wWCKlf1TGMdvH94M_P9kng';
 
     const map = new mapboxgl.Map({
@@ -54,7 +53,6 @@
         style: 'mapbox://styles/cactusblue/cmq8uiwbh001301rm973k6cjw'
     });
 
-    // Create a shared popup instance
     const popup = new mapboxgl.Popup({
         closeButton: false,
         closeOnClick: false
@@ -66,7 +64,7 @@
             .then(data => {
                 const now = new Date();
                 const futureFeatures = [];
-                const impactFeatures = []; // To hold our new explosion points
+                const impactFeatures = [];
 
                 data.features.forEach(feature => {
                     const props = feature.properties;
@@ -79,10 +77,8 @@
                     const decayDate = new Date(decayTimeStr);
                     
                     if (decayDate > now) {
-                        // Keep the original line or point
                         futureFeatures.push(feature);
                         
-                        // Spawn a new explosion point at the very end of the trajectory
                         if (isTrajectory) {
                             const coords = feature.geometry.coordinates;
                             impactFeatures.push({
@@ -101,10 +97,8 @@
                     }
                 });
 
-                // Merge the lines, immediate decays, and our new explosion points!
                 data.features = [...futureFeatures, ...impactFeatures];
 
-                // Note: We use futureFeatures for the UI count so we don't double-count satellites
                 document.getElementById('status-text').innerText = `${futureFeatures.length} impending re-entries`;
                 
                 populateSidebar(futureFeatures);

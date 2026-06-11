@@ -110,12 +110,6 @@
             'source': 'decays',
             'filter': ['==', ['get', 'type'], 'trajectory'],
             'layout': {
-                'line-z-offset': [
-                    'at-interpolated',
-                    ['*', ['line-progress'], ['-', ['length', ['get', 'elevation']], 1]],
-                    ['get', 'elevation']
-                ],
-                'line-elevation-reference': 'sea'
             },
             'paint': {
                 'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 8, 4], // Thicken on hover

@@ -21,8 +21,10 @@
         #satellite-list { flex-grow: 1; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
         .sat-item { padding: 15px 20px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
         .sat-item:hover { background-color: #333; }
-        .sat-item .id { font-weight: bold; font-size: 1.1rem; color: #ff4d4d; }
+        .sat-item .name { font-weight: bold; font-size: 1.1rem; color: #ff4d4d; }
+        .sat-item .id { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
         .sat-item .time { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
+
 
         /* Mapbox Popup Overrides */
         .mapboxgl-popup-content { background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 15px; }
@@ -86,6 +88,7 @@
                                 type: 'Feature',
                                 properties: {
                                     type: 'explosion', // Custom type just for the icon
+                                    satellite_name: props.satellite_name,
                                     catalog_id: props.catalog_id,
                                     timestamp: decayTimeStr
                                 },
@@ -188,7 +191,8 @@
             const li = document.createElement('li');
             li.className = 'sat-item';
             li.innerHTML = `
-                <div class="id">NORAD: ${props.catalog_id}</div>
+                <div class="name">${props.satellite_name}</div>
+                <div class="id">NORAD ID: ${props.catalog_id}</div>
                 <div class="time">Decay: ${dateObj.toLocaleString()}</div>
             `;
 
@@ -227,7 +231,7 @@
             const props = e.features[0].properties;
             const timestamps = JSON.parse(props.timestamps); // Mapbox strings arrays in properties sometimes
 
-            const html = `<strong>NORAD: ${props.catalog_id}</strong><br>Trajectory Time:<br>${new Date(timestamps[0]).toLocaleTimeString()} to ${new Date(timestamps[timestamps.length-1]).toLocaleTimeString()}`;
+            const html = `<strong>${props.satellite_name}</strong><br>Trajectory Time:<br>${new Date(timestamps[0]).toLocaleTimeString()} to ${new Date(timestamps[timestamps.length-1]).toLocaleTimeString()}`;
 
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
@@ -243,7 +247,7 @@
             const coordinates = e.features[0].geometry.coordinates.slice();
             const props = e.features[0].properties;
 
-            const html = `<strong>NORAD: ${props.catalog_id}</strong><br>Impact Time:<br>${new Date(props.timestamp).toLocaleString()}`;
+            const html = `<strong>${props.satellite_name}</strong><br>Impact Time:<br>${new Date(props.timestamp).toLocaleString()}`;
 
             new mapboxgl.Popup()
                 .setLngLat(coordinates)

@@ -21,10 +21,8 @@ def _build_time_window():
     return ts, ts.utc(now.year, now.month, now.day, minute=range(10080))
 
 def _detect_decay_worker(omm_dict, time_scale, time_array):
-    satrec = Satrec()
-    omm.initialize(satrec, omm_dict)
 
-    satellite = EarthSatellite.from_satrec(satrec, time_scale)
+    satellite = EarthSatellite.from_omm(time_scale, omm_dict)
 
     geocentric = satellite.at(time_array)
     geodetic = wgs84.geographic_position_of(geocentric)
@@ -54,6 +52,7 @@ def _detect_decay_worker(omm_dict, time_scale, time_array):
 
     return {
         "catalog_id": satellite.model.satnum,
+        "name": satellite.name,
         "trajectory": trajectory_coords,
         "altitudes": [float(a) for a in alts],
         "timestamps": times,

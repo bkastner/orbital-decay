@@ -224,36 +224,45 @@
         map.on('mouseleave', 'trajectory-lines', () => map.getCanvas().style.cursor = '');
         map.on('mouseenter', 'immediate-points', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'immediate-points', () => map.getCanvas().style.cursor = '');
-
-        // Click to show popup for Trajectories
-        map.on('click', 'trajectory-lines', (e) => {
-            const coordinates = e.lngLat;
-            const props = e.features[0].properties;
-            const timestamps = JSON.parse(props.timestamps); // Mapbox strings arrays in properties sometimes
-
-            const html = `<strong>${props.satellite_name}</strong><br>Trajectory Time:<br>${new Date(timestamps[0]).toLocaleTimeString()} to ${new Date(timestamps[timestamps.length-1]).toLocaleTimeString()}`;
-
-            new mapboxgl.Popup()
-                .setLngLat(coordinates)
-                .setHTML(html)
-                .addTo(map);
-        });
-
         map.on('mouseenter', 'explosions', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'explosions', () => map.getCanvas().style.cursor = '');
 
-        // Click to show popup for Explosions
-        map.on('click', 'explosions', (e) => {
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const props = e.features[0].properties;
+        // Unified click handler for overlapping layers
+        map.on('click', (e) => {
+            // Check if we clicked on either layer, and grab the topmost feature
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: ['explosions', 'trajectory-lines']
+            });
 
-            const html = `<strong>${props.satellite_name}</strong><br>Impact Time:<br>${new Date(props.timestamp).toLocaleString()}`;
+            // If we didn't click on either, do nothing
+            if (!features.length) return;
 
-            new mapboxgl.Popup()
-                .setLngLat(coordinates)
-                .setHTML(html)
-                .addTo(map);
+            const feature = features[0];
+            const props = feature.properties;
+
+            // Generate the correct popup based on which layer was visually on top
+            if (feature.layer.id === 'explosions') {
+                const coordinates = feature.geometry.coordinates.slice();
+                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Impact Time:<br>${new Date(props.timestamp).toLocaleString()}`;
+                
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(html)
+                    .addTo(map);
+
+            } else if (feature.layer.id === 'trajectory-lines') {
+                const coordinates = e.lngLat;
+                const timestamps = JSON.parse(props.timestamps);
+                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Trajectory Time:<br>${new Date(timestamps[0]).toLocaleTimeString()} to ${new Date(timestamps[timestamps.length-1]).toLocaleTimeString()}`;
+                
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(html)
+                    .addTo(map);
+            }
         });
+
+     
     }
 </script>
 </body>

@@ -18,6 +18,7 @@ def generate_geojson(with_trajectory, immediate_decays):
             "type": "Feature",
             "properties": {
                 "catalog_id": event["catalog_id"],
+                "satellite_name": event["name"],
                 "elevation": event["altitudes"],
                 "timestamps": event["timestamps"],
                 "type": "trajectory"
@@ -35,6 +36,7 @@ def generate_geojson(with_trajectory, immediate_decays):
             "type": "Feature",
             "properties": {
                 "catalog_id": event["catalog_id"],
+                "satellite_name": event["name"],
                 "elevation": event["altitudes"][0],  # Grab the single float
                 "timestamp": event["timestamps"][0],  # Grab the single string
                 "type": "immediate_decay"

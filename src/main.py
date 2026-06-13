@@ -35,14 +35,13 @@ def main():
 
     logger.info(f"Filtered to {len(satellite_records)} LEO satellites. Starting CPU propagation engine...")
 
-    with_trajectory, immediate_decays = orchestrator(satellite_records)
+    with_trajectory = orchestrator(satellite_records)
 
     logger.info("Propagation complete.")
-    logger.info(f"Detected {len(with_trajectory)} impending re-entries with map trajectories.")
-    logger.info(f"Detected {len(immediate_decays)} immediate re-entries (Point data).")
+    logger.info(f"Detected {len(with_trajectory)} impending re-entries.")
 
     logger.info("Formatting results into 3D GeoJSON FeatureCollection...")
-    geojson_output = generate_geojson(with_trajectory, immediate_decays)
+    geojson_output = generate_geojson(with_trajectory)
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     web_dir = os.path.abspath(os.path.join(base_dir, '..', 'web'))

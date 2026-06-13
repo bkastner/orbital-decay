@@ -190,7 +190,7 @@
             li.innerHTML = `
                 <div class="name">${props.satellite_name}</div>
                 <div class="id">NORAD ID: ${props.catalog_id}</div>
-                <div class="time">Decay: ${dateObj.toLocaleString()}</div>
+                <div class="time">Re-Entry: ${dateObj.toLocaleString()}</div>
             `;
 
             // Fly to the satellite when clicked in the sidebar
@@ -233,7 +233,7 @@
             // Generate the correct popup based on which layer was visually on top
             if (feature.layer.id === 'explosions') {
                 const coordinates = feature.geometry.coordinates.slice();
-                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Impact Time:<br>${new Date(props.timestamp).toLocaleString()}`;
+                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Re-Entry Time:<br>${new Date(props.timestamp).toLocaleString()}`;
                 
                 new mapboxgl.Popup()
                     .setLngLat(coordinates)

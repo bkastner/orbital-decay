@@ -174,6 +174,25 @@
             }
         });
 
+        // Add Satellite Labels
+        map.addLayer({
+            'id': 'satellite-labels',
+            'type': 'symbol',
+            'source': 'decays',
+            'filter': ['any', ['==', ['get', 'type'], 'explosion'], ['==', ['get', 'type'], 'immediate_decay']],
+            'layout': {
+                'text-field': ['get', 'satellite_name'],
+                'text-size': 12,
+                'text-offset': [0, 1.2],
+                'text-anchor': 'top'
+            },
+            'paint': {
+                'text-color': '#ffffff',
+                'text-halo-color': '#1a1a1a',
+                'text-halo-width': 2
+            }
+        });
+
         setupInteractivity();
     }
 

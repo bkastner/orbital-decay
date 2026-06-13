@@ -62,7 +62,7 @@
     });
 
     map.on('style.load', () => {
-        fetch('decays.geojson?t=' + new Date().getTime())
+        fetch('decays.geojson')
             .then(response => response.json())
             .then(data => {
                 const now = new Date();

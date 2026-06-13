@@ -29,7 +29,7 @@ def _detect_decay_worker(omm_dict, time_scale, time_array):
 
     elevations = geodetic.elevation.km
 
-    decay_indices = numpy.where(elevations < 105.0)[0]
+    decay_indices = numpy.where(elevations < 100.0)[0] # Below Karman line
 
     if len(decay_indices) == 0:
         return None
@@ -65,7 +65,6 @@ def orchestrator(satellite_records):
     worker = partial(_detect_decay_worker, time_scale=time_scale, time_array=time_arr)
 
     decayed_satellites_with_trajectory = []
-    decayed_satellites = []
 
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         # executor.map distributes the workload and preserves the order of results
@@ -76,10 +75,8 @@ def orchestrator(satellite_records):
             if event is not None:
                 if len(event['trajectory']) > 1:
                     decayed_satellites_with_trajectory.append(event)
-                else:
-                    decayed_satellites.append(event)
 
-    return decayed_satellites_with_trajectory, decayed_satellites
+    return decayed_satellites_with_trajectory
 
 
 

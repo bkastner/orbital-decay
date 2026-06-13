@@ -71,33 +71,27 @@
 
                 data.features.forEach(feature => {
                     const props = feature.properties;
-                    const isTrajectory = props.type === 'trajectory';
                     
-                    const decayTimeStr = isTrajectory 
-                        ? props.timestamps[props.timestamps.length - 1] 
-                        : props.timestamp;
-                    
+                    const decayTimeStr = props.timestamps[props.timestamps.length - 1];
                     const decayDate = new Date(decayTimeStr);
                     
                     if (decayDate > now) {
                         futureFeatures.push(feature);
                         
-                        if (isTrajectory) {
-                            const coords = feature.geometry.coordinates;
-                            impactFeatures.push({
-                                type: 'Feature',
-                                properties: {
-                                    type: 'explosion', // Custom type just for the icon
-                                    satellite_name: props.satellite_name,
-                                    catalog_id: props.catalog_id,
-                                    timestamp: decayTimeStr
-                                },
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: coords[coords.length - 1] // The exact impact coordinate
-                                }
-                            });
-                        }
+                        const coords = feature.geometry.coordinates;
+                        impactFeatures.push({
+                            type: 'Feature',
+                            properties: {
+                                type: 'explosion', // Custom type just for the icon
+                                satellite_name: props.satellite_name,
+                                catalog_id: props.catalog_id,
+                                timestamp: decayTimeStr
+                            },
+                            geometry: {
+                                type: 'Point',
+                                coordinates: coords[coords.length - 1] // The exact impact coordinate
+                            }
+                        });
                     }
                 });
 
@@ -147,7 +141,7 @@
             'id': 'explosions',
             'type': 'symbol',
             'source': 'decays',
-            'filter': ['any', ['==', ['get', 'type'], 'explosion'], ['==', ['get', 'type'], 'immediate_decay']],
+            'filter': ['==', ['get', 'type'], 'explosion'],
             'layout': {
                 'text-field': '✹', 
                 'text-size': 20,
@@ -160,26 +154,12 @@
             }
         });
 
-        // Add Immediate Points
-        map.addLayer({
-            'id': 'immediate-points',
-            'type': 'circle',
-            'source': 'decays',
-            'filter': ['==', ['get', 'type'], 'immediate_decay'],
-            'paint': {
-                'circle-radius': ['case', ['boolean', ['feature-state', 'hover'], false], 10, 6],
-                'circle-color': '#ffae42',
-                'circle-stroke-width': 1,
-                'circle-stroke-color': '#ffffff'
-            }
-        });
-
         // Add Satellite Labels
         map.addLayer({
             'id': 'satellite-labels',
             'type': 'symbol',
             'source': 'decays',
-            'filter': ['any', ['==', ['get', 'type'], 'explosion'], ['==', ['get', 'type'], 'immediate_decay']],
+            'filter': ['==', ['get', 'type'], 'explosion'],
             'layout': {
                 'text-field': ['get', 'satellite_name'],
                 'text-size': 12,
@@ -201,10 +181,8 @@
 
         features.forEach((feature, index) => {
             const props = feature.properties;
-            const isTrajectory = props.type === 'trajectory';
 
-            // For trajectories, grab the last timestamp. For points, grab the only timestamp.
-            const decayTime = isTrajectory ? props.timestamps[props.timestamps.length - 1] : props.timestamp;
+            const decayTime = props.timestamps[props.timestamps.length - 1];
             const dateObj = new Date(decayTime);
 
             const li = document.createElement('li');
@@ -217,13 +195,8 @@
 
             // Fly to the satellite when clicked in the sidebar
             li.addEventListener('click', () => {
-                let targetCoords;
-                if (isTrajectory) {
-                    const coords = feature.geometry.coordinates;
-                    targetCoords = coords[coords.length - 1]; // Fly to the end of the line
-                } else {
-                    targetCoords = feature.geometry.coordinates;
-                }
+                const coords = feature.geometry.coordinates;
+                const targetCoords = coords[coords.length - 1]; // Fly to the end of the line
 
                 map.flyTo({
                     center: targetCoords,
@@ -241,8 +214,6 @@
         // Change cursor on hover
         map.on('mouseenter', 'trajectory-lines', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'trajectory-lines', () => map.getCanvas().style.cursor = '');
-        map.on('mouseenter', 'immediate-points', () => map.getCanvas().style.cursor = 'pointer');
-        map.on('mouseleave', 'immediate-points', () => map.getCanvas().style.cursor = '');
         map.on('mouseenter', 'explosions', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'explosions', () => map.getCanvas().style.cursor = '');
 
@@ -280,8 +251,6 @@
                     .addTo(map);
             }
         });
-
-     
     }
 </script>
 </body>

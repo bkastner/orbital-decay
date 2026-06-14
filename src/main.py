@@ -9,6 +9,7 @@ import logging
 from celestrak_client import CelestrakClient
 from propagator import orchestrator
 from formatter import generate_geojson
+from sgp4.api import accelerated
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -21,6 +22,12 @@ def main():
         help="Path to a local CSV file to bypass CelesTrak network requests."
     )
     args = parser.parse_args()
+
+    # Check if SGP4 is using the C++ implementation
+    if accelerated:
+        logger.info('SGP4 is using the accelerated C++ implementation')
+    else:
+        logger.info('SGP4 is using the slow Python implementation, performance will be greatly reduced.')
 
     logger.info("Initializing Celestrak Client...")
     client = CelestrakClient(local_file=args.local_file)

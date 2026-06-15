@@ -4,8 +4,11 @@ src/main.py
 Entry point for orbital decay predictor app.
 """
 import os
+import boto3
 import argparse
 import logging
+
+from botocore.exceptions import NoCredentialsError
 from celestrak_client import CelestrakClient
 from propagator import orchestrator
 from formatter import generate_geojson
@@ -13,6 +16,34 @@ from sgp4.api import accelerated
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+def upload_geojson_to_s3(file_path):
+    bucket_name = os.getenv('S3_BUCKET_NAME')
+
+    if not bucket_name:
+        logger.error("S3_BUCKET_NAME environment variable not found. Skipping S3 upload.")
+        return
+
+    s3_client = boto3.client('s3')
+
+    logger.info(f"Uploading {file_path} to s3://{bucket_name}/decays.geojson...")
+
+    try:
+        s3_client.upload_file(
+            file_path,
+            bucket_name,
+            'decays.geojson',
+            ExtraArgs={
+                'ContentType': 'application/geo+json',
+                'CacheControl': 'public, max-age=3600'  # 1 hour
+            }
+        )
+        logger.info("Successfully uploaded to S3!")
+    except NoCredentialsError:
+        logger.error("Error: AWS credentials not found. Cannot upload to S3.")
+    except Exception as e:
+        logger.error(f"An error occurred during S3 upload: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Orbital Decay Predictor Pipeline")
@@ -60,6 +91,8 @@ def main():
         f.write(geojson_output)
 
     logger.info(f"Success! Data payload written to: {output_path}")
+
+    upload_geojson_to_s3(output_path)
 
 if __name__ == "__main__":
     main()

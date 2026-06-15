@@ -1,6 +1,6 @@
 # Environments
 venv/
-.env
+src/.env
 .idea
 
 # Python compilation files

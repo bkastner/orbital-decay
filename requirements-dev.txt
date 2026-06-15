@@ -4,3 +4,4 @@ click
 skyfield
 pytest
 pytest-mock
+tqdm

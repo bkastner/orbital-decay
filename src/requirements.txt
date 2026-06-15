@@ -2,3 +2,4 @@ sgp4
 boto3
 click
 skyfield
+tqdm

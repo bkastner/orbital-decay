@@ -8,9 +8,8 @@ from skyfield.api import EarthSatellite, Loader
 from skyfield.toposlib import wgs84
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timezone
-from sgp4 import omm
-from sgp4.api import Satrec
 from functools import partial
+from tqdm import tqdm
 
 def _build_time_window():
     data_dir = os.path.join(os.path.dirname(__file__), 'static', 'skyfield_data')
@@ -66,15 +65,18 @@ def orchestrator(satellite_records):
 
     decayed_satellites_with_trajectory = []
 
+    is_cloud = "AWS_EXECUTION_ENV" in os.environ
+
+    pbar = tqdm('Propagating trajectories', total=len(satellite_records), unit=' satellite', disable=is_cloud)
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         # executor.map distributes the workload and preserves the order of results
-        results = executor.map(worker, satellite_records)
-
-        # Filter out the None values where no decay was detected
-        for event in results:
+        for event in executor.map(worker, satellite_records, chunksize=100):
+            pbar.update()
             if event is not None:
                 if len(event['trajectory']) > 1:
                     decayed_satellites_with_trajectory.append(event)
+
+    pbar.close()
 
     return decayed_satellites_with_trajectory
 

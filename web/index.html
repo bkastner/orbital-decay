@@ -10,11 +10,23 @@
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; height: 100vh; overflow: hidden; background-color: #1a1a1a; }
 
         /* Layout */
-        #sidebar { width: 320px; background-color: #222; color: #fff; display: flex; flex-direction: column; z-index: 1; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
-        #map { flex-grow: 1; position: relative; }
+        #map { flex-grow: 1; position: relative; height: 100%; width: 100%; }
+        
+        #sidebar { 
+            width: 320px; 
+            background-color: #222; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 10; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5); 
+            transition: transform 0.3s ease;
+            position: relative;
+        }
 
         /* Sidebar Styling */
-        .header { padding: 20px; background-color: #111; border-bottom: 1px solid #333; }
+        .header { padding: 20px; background-color: #111; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;}
+        .header-content {flex-grow: 1;}
         .header h1 { margin: 0; font-size: 1.2rem; color: #ffae42; }
         .header p { margin: 5px 0 0 0; font-size: 0.85rem; color: #aaa; }
 
@@ -25,18 +37,57 @@
         .sat-item .id { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
         .sat-item .time { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
 
+        /* Toggle Button */
+        #toggle-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none; /* Hidden by default on desktop */
+            padding: 0 10px;
+        }
+        
+        #toggle-btn:focus {
+            outline: none;
+        }
 
         /* Mapbox Popup Overrides */
         .mapboxgl-popup-content { background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 15px; }
         .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip { border-top-color: #222; }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: absolute; /* Takes sidebar out of document flow */
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 45vh; /* Takes up bottom 45% */
+                box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+            }
+            
+            #toggle-btn {
+                display: block;
+            }
+
+            /* State classes for mobile toggle */
+            #sidebar.collapsed {
+                /* Header is approx 75px tall. Slide down almost completely out of view */
+                transform: translateY(calc(100% - 75px)); 
+            }
+        }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <div class="header">
-        <h1>Impending Re-entries</h1>
-        <p id="status-text">Loading orbital data...</p>
+    <div class="header" id="sidebar-header">
+        <div class="header-content">
+            <h1>Impending Re-entries</h1>
+            <p id="status-text">Loading orbital data...</p>
+        </div>
+        <button id="toggle-btn">▼</button>
     </div>
     <ul id="satellite-list"></ul>
 </div>
@@ -59,6 +110,34 @@
     const popup = new mapboxgl.Popup({
         closeButton: false,
         closeOnClick: false
+    });
+
+    // Sidebar Toggle Logic
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const sidebarHeader = document.getElementById('sidebar-header');
+
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('collapsed');
+            toggleBtn.innerText = sidebar.classList.contains('collapsed') ? '▲' : '▼';
+        }
+    }
+
+    toggleBtn.addEventListener('click', toggleSidebar);
+    // Allow tapping the whole header to toggle on mobile for ease of use
+    sidebarHeader.addEventListener('click', (e) => {
+        if(window.innerWidth <= 768 && e.target !== toggleBtn) {
+            toggleSidebar();
+        }
+    });
+
+    // Handle window resize to reset states if moving between desktop/mobile views
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('collapsed');
+        }
+        map.resize();
     });
 
     map.on('style.load', () => {
@@ -196,7 +275,12 @@
             // Fly to the satellite when clicked in the sidebar
             li.addEventListener('click', () => {
                 const coords = feature.geometry.coordinates;
-                const targetCoords = coords[coords.length - 1]; // Fly to the end of the line
+                const targetCoords = coords[coords.length - 1]; 
+                
+                // If on mobile, collapse the sidebar after clicking an item to show the map
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
 
                 map.flyTo({
                     center: targetCoords,

@@ -281,7 +281,7 @@
             li.innerHTML = `
                 <div class="name">${props.satellite_name}</div>
                 <div class="id">NORAD ID: ${props.catalog_id}</div>
-                <div class="time">Re-Entry: ${dateObj.toLocaleString()}</div>
+                <div class="time">Re-Entry: ${dateObj.toLocaleString(undefined, { timeZone: 'UTC', timeZoneName: 'short' })}</div>
             `;
 
             // Fly to the satellite when clicked in the sidebar
@@ -329,8 +329,7 @@
             // Generate the correct popup based on which layer was visually on top
             if (feature.layer.id === 'explosions') {
                 const coordinates = feature.geometry.coordinates.slice();
-                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Re-Entry Time:<br>${new Date(props.timestamp).toLocaleString()}`;
-                
+                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Re-Entry Time:<br>${new Date(props.timestamp).toLocaleString(undefined, { timeZone: 'UTC', timeZoneName: 'short' })}`;                
                 new mapboxgl.Popup()
                     .setLngLat(coordinates)
                     .setHTML(html)
@@ -339,8 +338,7 @@
             } else if (feature.layer.id === 'trajectory-lines') {
                 const coordinates = e.lngLat;
                 const timestamps = JSON.parse(props.timestamps);
-                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Trajectory Time:<br>${new Date(timestamps[0]).toLocaleTimeString()} to ${new Date(timestamps[timestamps.length-1]).toLocaleTimeString()}`;
-                
+                const html = `<strong>${props.satellite_name}</strong><br>NORAD: ${props.catalog_id}<br>Trajectory Time:<br>${new Date(timestamps[0]).toLocaleTimeString(undefined, { timeZone: 'UTC', timeZoneName: 'short' })} to ${new Date(timestamps[timestamps.length-1]).toLocaleTimeString(undefined, { timeZone: 'UTC', timeZoneName: 'short' })}`;                
                 new mapboxgl.Popup()
                     .setLngLat(coordinates)
                     .setHTML(html)

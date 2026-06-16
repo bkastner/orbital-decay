@@ -178,6 +178,15 @@
                     }
                 });
 
+                // Sort the features so the soonest decay time is at the top of the list
+                futureFeatures.sort((a, b) => {
+                    // Date.parse() instantly converts the string into raw epoch milliseconds
+                    const timeA = Date.parse(a.properties.timestamps[a.properties.timestamps.length - 1]);
+                    const timeB = Date.parse(b.properties.timestamps[b.properties.timestamps.length - 1]);
+                    
+                    return timeA - timeB; 
+                });
+
                 data.features = [...futureFeatures, ...impactFeatures];
 
                 document.getElementById('status-text').innerText = `${futureFeatures.length} impending re-entries`;

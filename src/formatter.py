@@ -4,6 +4,8 @@ src/formatter.py
 Format the result as mapbox-compatible json
 """
 import json
+from datetime import datetime
+from datetime import timezone
 
 def generate_geojson(with_trajectory):
     """
@@ -31,6 +33,7 @@ def generate_geojson(with_trajectory):
 
 
     feature_collection = {
+        "updated": datetime.now(timezone.utc).isoformat(),
         "type": "FeatureCollection",
         "features": features
     }

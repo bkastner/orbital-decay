@@ -86,7 +86,7 @@
     <div class="header" id="sidebar-header">
         <div class="header-content">
             <h1>Impending Re-entries</h1>
-            <p id="status-text">Loading orbital data...</p>
+            <p id="updated-text"></p> <p id="status-text">Loading orbital data...</p>
         </div>
         <button id="toggle-btn">▼</button>
     </div>
@@ -148,6 +148,11 @@
         fetch('decays.geojson')
             .then(response => response.json())
             .then(data => {
+                if (data.updated) {
+                    const updateDate = new Date(data.updated);
+                    const formattedDate = updateDate.toLocaleString(undefined, { timeZone: 'UTC', timeZoneName: 'short' });
+                    document.getElementById('updated-text').innerText = `Last updated: ${formattedDate}`;
+                }
                 const now = new Date();
                 const futureFeatures = [];
                 const impactFeatures = [];

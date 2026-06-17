@@ -10,8 +10,13 @@ from typing import Any
 
 def generate_geojson(with_trajectory: list[dict[str, Any]]) -> str:
     """
-    Converts a list of satellite decay trajectories into a valid GeoJSON FeatureCollection.
-    Structures the data specifically for Mapbox GL JS 'line-z-offset' elevated lines.
+    Serializes a list of satellite decay trajectories into a valid GeoJSON FeatureCollection.
+
+    Args:
+        with_trajectory: List of satellites.
+
+    Returns:
+        A serialized GeoJSON string.
     """
     features = []
 

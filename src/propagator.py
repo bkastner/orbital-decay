@@ -72,8 +72,15 @@ def orchestrator(satellite_records: list[dict[str, Any]]) -> list[dict[str, Any]
 
     is_cloud = "AWS_EXECUTION_ENV" in os.environ
 
+    worker_env = os.environ.get('WORKER_COUNT')
+
+    if worker_env and worker_env.isdigit():
+        max_workers = int(worker_env)
+    else:
+        max_workers = os.cpu_count() or 1
+
     pbar = tqdm('Propagating trajectories', total=len(satellite_records), unit=' satellite', disable=is_cloud)
-    with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for event in executor.map(worker, satellite_records, chunksize=100):
             pbar.update()
             if event is not None:

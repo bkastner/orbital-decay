@@ -16,7 +16,6 @@ from typing import Any
 MINUTES_IN_WEEK = 60 * 24 * 7
 KARMAN_LINE_KM = 100
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def _build_time_window() -> tuple[Timescale, Time]:

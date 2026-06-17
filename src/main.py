@@ -17,7 +17,7 @@ from sgp4.api import accelerated
 
 CACHE_CONTROL_TIMEOUT_SEC = 3600 # 1 hour
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 

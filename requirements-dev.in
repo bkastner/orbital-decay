@@ -1,0 +1,6 @@
+sgp4
+boto3
+skyfield
+numpy
+pytest
+pytest-mock

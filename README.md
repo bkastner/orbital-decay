@@ -27,3 +27,9 @@ graph TD;
     click Skyfield "https://rhodesmill.org/skyfield/" "Go to Skyfield documentation"
     click celestrak.org "celestrak.org" "Go to celestrak.org"
 ```
+
+
+## Display
+![Screenshot #1 of web map](./images/orbital-decay_01.webp)
+![Screenshot #2 of web map](./images/orbital-decay_02.webp)
+![Screenshot #3 of web map](./images/orbital_decay_03.webp)

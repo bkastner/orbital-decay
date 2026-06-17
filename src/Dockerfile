@@ -8,4 +8,6 @@ COPY main.py .
 COPY formatter.py .
 COPY propagator.py .
 COPY celestrak_client.py .
+RUN useradd -m appuser
+USER appuser
 CMD ["python", "main.py"]

@@ -7,6 +7,8 @@ import logging
 from sgp4 import omm
 from typing import Generator, Iterable, Any
 
+MEAN_MOTION_THRESHOLD = 14
+
 logger = logging.getLogger(__name__)
 
 class CelestrakClient:
@@ -50,7 +52,7 @@ class CelestrakClient:
         for fields in omm.parse_csv(text_stream):
             # Filter: Only process objects in Low Earth Orbit (>= 14 orbits per day)
             # This throws out high-altitude objects (like GEO/MEO) that are nowhere near decaying.
-            if float(fields['MEAN_MOTION']) < 14.0:
+            if float(fields['MEAN_MOTION']) < MEAN_MOTION_THRESHOLD:
                 continue
 
             yield fields

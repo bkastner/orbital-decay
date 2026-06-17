@@ -1,7 +1,7 @@
 """
 Compute satellite propagation over the next week to determine if it will decay and re-enter in that time.
 """
-
+import logging
 import os
 import numpy
 from skyfield.api import EarthSatellite, Loader
@@ -15,6 +15,9 @@ from typing import Any
 
 MINUTES_IN_WEEK = 60 * 24 * 7
 KARMAN_LINE_KM = 100
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def _build_time_window() -> tuple[Timescale, Time]:
     data_dir = os.path.join(os.path.dirname(__file__), 'static', 'skyfield_data')
@@ -78,6 +81,8 @@ def orchestrator(satellite_records: list[dict[str, Any]]) -> list[dict[str, Any]
         max_workers = int(worker_env)
     else:
         max_workers = os.cpu_count() or 1
+
+    logger.info(f'Running with {max_workers} workers')
 
     pbar = tqdm('Propagating trajectories', total=len(satellite_records), unit=' satellite', disable=is_cloud)
     with ProcessPoolExecutor(max_workers=max_workers) as executor:

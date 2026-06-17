@@ -37,17 +37,16 @@ def test_build_time_window(mocker):
 
 def test_detect_decay_worker_finds_decay(mocker):
     """
-    Simulates a satellite dropping below 105 km and ensures the correct
+    Simulates a satellite dropping below 100 km and ensures the correct
     dictionary is returned.
     """
-    mocker.patch('src.propagator.Satrec')
-    mocker.patch('src.propagator.omm.initialize')
-    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
+    mocker.patch('src.propagator.EarthSatellite')
+    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_omm")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
-    # Construct fake geodetic data where elevation drops below 105km at index 1
+    # Construct fake geodetic data where elevation drops below 100km at index 1
     mock_geodetic = MagicMock()
-    mock_geodetic.elevation.km = np.array([150.0, 100.0, 90.0])
+    mock_geodetic.elevation.km = np.array([150.0, 99.0, 90.0])
     mock_geodetic.elevation.m = np.array([150000.0, 100000.0, 90000.0])
     mock_geodetic.latitude.degrees = np.array([45.0, 46.0, 47.0])
     mock_geodetic.longitude.degrees = np.array([-104.0, -105.0, -106.0])
@@ -89,9 +88,8 @@ def test_detect_decay_worker_finds_decay_last_coordinate(mocker):
     ensures the correct dictionary is returned.
     """
     # Mock the dependencies
-    mocker.patch('src.propagator.Satrec')
-    mocker.patch('src.propagator.omm.initialize')
-    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
+    mocker.patch('src.propagator.EarthSatellite')
+    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_omm")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
     # Construct fake geodetic data where elevation drops below 105km at index 2
@@ -128,14 +126,13 @@ def test_detect_decay_worker_finds_decay_first_coordinate(mocker):
     Simulates a satellite dropping below 105 km at the very beginning of our time window and
     ensures the correct dictionary is returned.
     """
-    mocker.patch('src.propagator.Satrec')
-    mocker.patch('src.propagator.omm.initialize')
-    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_satrec")
+    mocker.patch('src.propagator.EarthSatellite')
+    mock_from_satrec = mocker.patch("src.propagator.EarthSatellite.from_omm")
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
     # Construct fake geodetic data where elevation drops below 105km at index 2
     mock_geodetic = MagicMock()
-    mock_geodetic.elevation.km = np.array([100.0, 95.0, 90.0])
+    mock_geodetic.elevation.km = np.array([99.0, 95.0, 90.0])
     mock_geodetic.elevation.m = np.array([100000.0, 95000.0, 90000.0])
     mock_geodetic.latitude.degrees = np.array([45.0, 46.0, 47.0])
     mock_geodetic.longitude.degrees = np.array([-104.0, -105.0, -106.0])
@@ -165,11 +162,9 @@ def test_detect_decay_worker_finds_decay_first_coordinate(mocker):
 
 def test_detect_decay_worker_no_decay(mocker):
     """
-    Simulates a stable orbit > 105 km and ensures None is returned.
+    Simulates a stable orbit > 100 km and ensures None is returned.
     """
-    mocker.patch('src.propagator.Satrec')
-    mocker.patch('src.propagator.omm.initialize')
-    mocker.patch("src.propagator.EarthSatellite.from_satrec")
+    mocker.patch('src.propagator.EarthSatellite')
     mock_wgs84 = mocker.patch("src.propagator.wgs84.geographic_position_of")
 
     # Array where elevation NEVER drops below 105km
@@ -203,10 +198,8 @@ def test_orchestrator_filters_results(mocker):
     mocker.patch("src.propagator._build_time_window", return_value=(MagicMock(), MagicMock()))
 
     # Execute
-    with_trajectory, without_trajectory = orchestrator(["fake_sat_1", "fake_sat_2", "fake_sat_3", "fake_sat_4"])
+    with_trajectory = orchestrator(["fake_sat_1", "fake_sat_2", "fake_sat_3", "fake_sat_4"])
 
     # Assert it filtered out the None values and kept only the dicts
     assert len(with_trajectory) == 1
-    assert len(without_trajectory) == 1
     assert with_trajectory[0]["catalog_id"] == 1
-    assert without_trajectory[0]["catalog_id"] == 2

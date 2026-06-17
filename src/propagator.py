@@ -13,6 +13,8 @@ from functools import partial
 from tqdm import tqdm
 from typing import Any
 
+MINUTES_IN_WEEK = 60 * 24 * 7
+KARMAN_LINE_KM = 100
 
 def _build_time_window() -> tuple[Timescale, Time]:
     data_dir = os.path.join(os.path.dirname(__file__), 'static', 'skyfield_data')
@@ -20,7 +22,7 @@ def _build_time_window() -> tuple[Timescale, Time]:
     ts = load.timescale()
 
     now = datetime.now(timezone.utc)
-    return ts, ts.utc(now.year, now.month, now.day, minute=range(10080))
+    return ts, ts.utc(now.year, now.month, now.day, minute=range(MINUTES_IN_WEEK))
 
 def _detect_decay_worker(omm_dict: dict[str, Any], time_scale: Timescale, time_array: Time) -> dict[str, Any] | None:
 
@@ -31,7 +33,7 @@ def _detect_decay_worker(omm_dict: dict[str, Any], time_scale: Timescale, time_a
 
     elevations = geodetic.elevation.km
 
-    decay_indices = numpy.where(elevations < 100.0)[0] # Below Karman line
+    decay_indices = numpy.where(elevations < KARMAN_LINE_KM)[0] # Below Karman line
 
     if len(decay_indices) == 0:
         return None
@@ -81,14 +83,3 @@ def orchestrator(satellite_records: list[dict[str, Any]]) -> list[dict[str, Any]
     pbar.close()
 
     return decayed_satellites_with_trajectory
-
-
-
-
-
-
-
-
-
-
-

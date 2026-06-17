@@ -5,17 +5,18 @@ import io
 import urllib3
 import logging
 from sgp4 import omm
+from typing import Generator, Iterable, Any
 
 logger = logging.getLogger(__name__)
 
 class CelestrakClient:
-    def __init__(self, endpoint_url="https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=csv", local_file=None):
+    def __init__(self, endpoint_url: str="https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=csv", local_file: str | None =None) -> None:
         # Establish low-overhead HTTP connection pooling
         self.http = urllib3.PoolManager(num_pools=5, maxsize=10)
         self.endpoint_url = endpoint_url
         self.local_file = local_file
 
-    def get_active_catalog(self):
+    def get_active_catalog(self) -> Generator[dict[str, Any], None, None]:
         """
         Fetches the active catalog from the network and yields parsed Satrec objects.
         If self.local_file is present, then load data from it instead of Celestrak.  Useful to testing without hitting
@@ -41,7 +42,7 @@ class CelestrakClient:
                 text_stream = (line for line in local_data)
                 yield from self.parse_omm_stream(text_stream)
 
-    def parse_omm_stream(self, text_stream):
+    def parse_omm_stream(self, text_stream: Iterable[str]) -> Generator[dict[str, Any], None, None]:
         """
         Consumes an iterable of CSV strings, filters for LEO, and yields Satrec models.
         Isolated from network I/O for deterministic unit testing.

@@ -13,4 +13,7 @@ graph TD;
     celestrak.org(celestrak.org) -->ECS(ECS);
     EventBridge(Event Bridge)-->ECS
     S3-->CloudFront(Cloud Front);
+    click SGP4 "https://pypi.org/project/sgp4/" "Go to SGP4 documentation"
+    click Skyfield "https://rhodesmill.org/skyfield/" "Go to Skyfield documentation"
+    click celestrak.org "celestrak.org" "Go to celestrak.org"
 ```

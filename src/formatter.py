@@ -6,8 +6,9 @@ Format the result as mapbox-compatible json
 import json
 from datetime import datetime
 from datetime import timezone
+from typing import Any
 
-def generate_geojson(with_trajectory):
+def generate_geojson(with_trajectory: list[dict[str, Any]]) -> str:
     """
     Converts a list of satellite decay trajectories into a valid GeoJSON FeatureCollection.
     Structures the data specifically for Mapbox GL JS 'line-z-offset' elevated lines.

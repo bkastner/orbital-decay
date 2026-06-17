@@ -5,13 +5,16 @@ Compute satellite propagation over the next week to determine if it will decay a
 import os
 import numpy
 from skyfield.api import EarthSatellite, Loader
+from skyfield.timelib import Timescale, Time
 from skyfield.toposlib import wgs84
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timezone
 from functools import partial
 from tqdm import tqdm
+from typing import Any
 
-def _build_time_window():
+
+def _build_time_window() -> tuple[Timescale, Time]:
     data_dir = os.path.join(os.path.dirname(__file__), 'static', 'skyfield_data')
     load = Loader(data_dir)
     ts = load.timescale()
@@ -19,7 +22,7 @@ def _build_time_window():
     now = datetime.now(timezone.utc)
     return ts, ts.utc(now.year, now.month, now.day, minute=range(10080))
 
-def _detect_decay_worker(omm_dict, time_scale, time_array):
+def _detect_decay_worker(omm_dict: dict[str, Any], time_scale: Timescale, time_array: Time) -> dict[str, Any] | None:
 
     satellite = EarthSatellite.from_omm(time_scale, omm_dict)
 
@@ -59,7 +62,7 @@ def _detect_decay_worker(omm_dict, time_scale, time_array):
 
 
 
-def orchestrator(satellite_records):
+def orchestrator(satellite_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     time_scale, time_arr = _build_time_window()
     worker = partial(_detect_decay_worker, time_scale=time_scale, time_array=time_arr)
 
@@ -69,7 +72,6 @@ def orchestrator(satellite_records):
 
     pbar = tqdm('Propagating trajectories', total=len(satellite_records), unit=' satellite', disable=is_cloud)
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-        # executor.map distributes the workload and preserves the order of results
         for event in executor.map(worker, satellite_records, chunksize=100):
             pbar.update()
             if event is not None:

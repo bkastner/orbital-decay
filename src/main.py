@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def upload_geojson_to_s3(file_path):
+def upload_geojson_to_s3(file_path: str) -> None:
     bucket_name = os.getenv('S3_BUCKET_NAME')
 
     if not bucket_name:
@@ -45,7 +45,7 @@ def upload_geojson_to_s3(file_path):
     except Exception as e:
         logger.error(f"An error occurred during S3 upload: {e}")
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Orbital Decay Predictor Pipeline")
     parser.add_argument(
         '--local-file',

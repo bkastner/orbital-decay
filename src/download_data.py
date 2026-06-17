@@ -8,7 +8,7 @@ import os
 from skyfield.api import Loader
 
 
-def download_timescale_data():
+def download_timescale_data() -> None:
     """
     Downloads IERS Earth rotation and leap second data required by Skyfield.
     This script is executed during the Docker build process so the data is

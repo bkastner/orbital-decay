@@ -14,6 +14,8 @@ from propagator import orchestrator
 from formatter import generate_geojson
 from sgp4.api import accelerated
 
+CACHE_CONTROL_TIMEOUT_SEC = 3600 # 1 hour
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ def upload_geojson_to_s3(file_path: str) -> None:
             'decays.geojson',
             ExtraArgs={
                 'ContentType': 'application/geo+json',
-                'CacheControl': 'public, max-age=3600'  # 1 hour
+                'CacheControl': f'public, max-age={CACHE_CONTROL_TIMEOUT_SEC}'
             }
         )
         logger.info("Successfully uploaded to S3!")

@@ -1,6 +1,5 @@
 sgp4
 boto3
-click
 skyfield
 pytest
 pytest-mock

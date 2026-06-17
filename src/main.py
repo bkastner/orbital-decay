@@ -22,6 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 def upload_geojson_to_s3(file_path: str) -> None:
+    """
+    Upload a GeoJSON file to an S3 bucket.
+
+    The bucket name is determined from the environment variable S3_BUCKET_NAME.
+
+    Args:
+        file_path: Path to the geojson file to upload
+
+    Returns:
+        None
+    """
     bucket_name = os.getenv('S3_BUCKET_NAME')
 
     if not bucket_name:
@@ -51,6 +62,12 @@ def upload_geojson_to_s3(file_path: str) -> None:
         sys.exit(1)
 
 def main() -> None:
+    """
+    Entry point for the orbital-decay app.
+
+    Returns:
+        None
+    """
     parser = argparse.ArgumentParser(description="Orbital Decay Predictor Pipeline")
     parser.add_argument(
         '--local-file',

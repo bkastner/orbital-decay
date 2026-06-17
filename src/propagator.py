@@ -19,6 +19,12 @@ KARMAN_LINE_KM = 100
 logger = logging.getLogger(__name__)
 
 def _build_time_window() -> tuple[Timescale, Time]:
+    """
+    Build a time window and arraw for use during propagation.
+
+    Returns:
+        A tuple of a Timescale factory object and an array of times.
+    """
     data_dir = os.path.join(os.path.dirname(__file__), 'static', 'skyfield_data')
     load = Loader(data_dir)
     ts = load.timescale()
@@ -27,6 +33,21 @@ def _build_time_window() -> tuple[Timescale, Time]:
     return ts, ts.utc(now.year, now.month, now.day, minute=range(MINUTES_IN_WEEK))
 
 def _detect_decay_worker(omm_dict: dict[str, Any], time_scale: Timescale, time_array: Time) -> dict[str, Any] | None:
+    """
+    Worker function that estimates the future trajectory of one satellite and determines if it will decay in the provided
+    time period.
+
+    Args:
+        omm_dict: Dictionary of satellite information parsed from an OMM record.
+        time_scale: The Timescale factory object produced by _build_time_window()
+        time_array: Array of times to estimate the trajectory for.  Producded by _build_time_window()
+
+    Returns:
+        If the satellite decays during the provided time window, return a dictionary containing the last 15 minutes
+        of the satellite's trajectory.
+
+        Else, return None.
+    """
 
     satellite = EarthSatellite.from_omm(time_scale, omm_dict)
 
@@ -67,6 +88,16 @@ def _detect_decay_worker(omm_dict: dict[str, Any], time_scale: Timescale, time_a
 
 
 def orchestrator(satellite_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Estimates the future trajectories of the satellites in parallel, and returns the trajectories of the ones that
+    decay in the specified time window.
+
+    Args:
+        satellite_records: List of dictionaries with each dictionary representing a satellite and it's current orbital perturbations.
+
+    Return:
+        A list of dictionaries where each dictionary represents the last 15 minutes of the decaying satellite's trajectory
+    """
     time_scale, time_arr = _build_time_window()
     worker = partial(_detect_decay_worker, time_scale=time_scale, time_array=time_arr)
 

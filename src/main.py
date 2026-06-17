@@ -7,6 +7,7 @@ import os
 import boto3
 import argparse
 import logging
+import sys
 
 from botocore.exceptions import NoCredentialsError
 from celestrak_client import CelestrakClient
@@ -41,11 +42,13 @@ def upload_geojson_to_s3(file_path: str) -> None:
                 'CacheControl': f'public, max-age={CACHE_CONTROL_TIMEOUT_SEC}'
             }
         )
-        logger.info("Successfully uploaded to S3!")
+        logger.info("Successfully uploaded to S3!") 
     except NoCredentialsError:
         logger.error("Error: AWS credentials not found. Cannot upload to S3.")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"An error occurred during S3 upload: {e}")
+        sys.exit(1)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Orbital Decay Predictor Pipeline")

@@ -75,5 +75,8 @@ class CelestrakClient:
             # This throws out high-altitude objects (like GEO/MEO) that are nowhere near decaying.
             if float(fields['MEAN_MOTION']) < MEAN_MOTION_THRESHOLD:
                 continue
+            # Filter out satellites with negative BSTAR (actively maneuvering)
+            if float(fields['BSTAR']) < 0:
+                continue
 
             yield fields

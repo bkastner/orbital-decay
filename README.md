@@ -1,5 +1,5 @@
 # Orbital Decay Predictor
-### Visualize when and where space junk will soon de-orbit.  
+### Visualize when and where space junk may soon de-orbit.  
 
 # Execution
 
@@ -33,3 +33,26 @@ graph TD;
 ![Screenshot #1 of web map](./images/orbital-decay_01.webp)
 ![Screenshot #2 of web map](./images/orbital-decay_02.webp)
 ![Screenshot #3 of web map](./images/orbital_decay_03.webp)
+
+# Running locally
+
+1. `cd src`
+
+2. `python main.py`
+
+3. Note where the geojson file was saved, move it to the "web" directory and rename it to decays.geojson.
+
+4. `cd ../web`
+
+5. `python -m http.server 8000`
+6. Visit http://localhost:8000/ in your web browser
+
+# Building Docker image
+
+1. `cd src`
+2. `docker build -t orbital-decay .`
+
+# Limitations
+Satellites that are functioning and actively managed may not deorbit at their predicted 
+time.  Operators may choose to boost the satellite's orbit.  This is especially noticeable with 
+Starlink satellites - it may be predicted to decay and then be boosted into a higher orbit.  

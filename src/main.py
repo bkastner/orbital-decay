@@ -4,6 +4,8 @@ src/main.py
 Entry point for orbital decay predictor app.
 """
 import os
+import tempfile
+
 import boto3
 import argparse
 import logging
@@ -103,16 +105,11 @@ def main() -> None:
     logger.info("Formatting results into 3D GeoJSON FeatureCollection...")
     geojson_output = generate_geojson(with_trajectory)
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    web_dir = os.path.abspath(os.path.join(base_dir, '..', 'web'))
-    os.makedirs(web_dir, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.geojson', delete=False) as temp_file:
+        temp_file.write(geojson_output)
+        output_path = temp_file.name
 
-    output_path = os.path.join(web_dir, 'decays.geojson')
-
-    with open(output_path, 'w') as f:
-        f.write(geojson_output)
-
-    logger.info(f"Success! Data payload written to: {output_path}")
+    logger.info(f"Data payload written temporarily to: {output_path}")
 
     upload_geojson_to_s3(output_path)
 

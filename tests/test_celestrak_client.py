@@ -6,9 +6,9 @@ def test_parse_omm_stream_filters_num_orbits(mocker):
     mock_csv_parser = mocker.patch('src.celestrak_client.omm.parse_csv')
 
     mock_csv_parser.return_value = [
-        {'MEAN_MOTION': '14.1', 'OBJECT_ID': '1'},  # Keep
-        {'MEAN_MOTION': '14.0', 'OBJECT_ID': '2'},  # Keep
-        {'MEAN_MOTION': '13.9', 'OBJECT_ID': '3'}  # Drop
+        {'MEAN_MOTION': '14.1', 'OBJECT_ID': '1', 'BSTAR': 5},  # Keep
+        {'MEAN_MOTION': '14.0', 'OBJECT_ID': '2', 'BSTAR': 7},  # Keep
+        {'MEAN_MOTION': '13.9', 'OBJECT_ID': '3', 'BSTAR': 4}  # Drop
         ]
 
     result = list(CelestrakClient().parse_omm_stream(MagicMock()))

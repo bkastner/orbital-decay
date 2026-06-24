@@ -16,3 +16,6 @@ src/static/skyfield_data/
 
 # Generated data
 web/*.geojson
+
+# Test data
+tests/*.csv

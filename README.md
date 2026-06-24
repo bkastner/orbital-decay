@@ -52,6 +52,10 @@ graph TD;
 1. `cd src`
 2. `docker build -t orbital-decay .`
 
+# AI Usage
+I use AI tools like Claude and Gemini to brainstorm, write code, and debug.  
+I don't blindly accept their output but review and modify as needed.
+
 # Limitations
 Satellites that are functioning and actively managed may not deorbit at their predicted 
 time.  Operators may choose to boost the satellite's orbit.  This is especially noticeable with 

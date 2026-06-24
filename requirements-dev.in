@@ -5,3 +5,4 @@ numpy
 tqdm
 pytest
 pytest-mock
+pytest-cov

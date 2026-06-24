@@ -65,6 +65,10 @@ The pipeline runs in three stages, each in its own module:
 Tests use `pytest-mock` (`mocker` fixture). The `_detect_decay_worker` and `parse_omm_stream` functions are intentionally decoupled from I/O so they can be unit tested deterministically. Do not make real HTTP calls or load real Skyfield data in tests — mock `Loader` and `omm.parse_csv` as the existing tests demonstrate. The Celestrak API has strict rate limits; use `--local-file` instead of hitting the network during development.
 Local data for testing with --local-file is in tests/test_data.csv
 
+## Development rules
+Branch names must start with claude/
+Never merge a branch into main
+
 ## Security Rules
 
 - Never read, access, display, or reference the contents of any `.env` file or files ending in `.env.*` (e.g. `.env.local`, `.env.production`)

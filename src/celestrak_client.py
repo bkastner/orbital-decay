@@ -2,12 +2,14 @@
 src/celestrak_client.py
 """
 import io
+import os
 import urllib3
 import logging
 from sgp4 import omm
 from typing import Generator, Iterable, Any
 
 MEAN_MOTION_THRESHOLD = 14
+DEFAULT_ENDPOINT_URL = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=csv"
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +17,7 @@ class CelestrakClient:
     """
     Class that retrieves data from celestrak.org
     """
-    def __init__(self, endpoint_url: str="https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=csv", local_file: str | None =None) -> None:
+    def __init__(self, endpoint_url: str | None = None, local_file: str | None = None) -> None:
         """
         Initialize a CelestrakClient object.
 
@@ -26,7 +28,7 @@ class CelestrakClient:
         """
         # Establish low-overhead HTTP connection pooling
         self.http = urllib3.PoolManager(num_pools=5, maxsize=10)
-        self.endpoint_url = endpoint_url
+        self.endpoint_url = endpoint_url or os.environ.get("CELESTRAK_ENDPOINT_URL", DEFAULT_ENDPOINT_URL)
         self.local_file = local_file
 
     def get_active_catalog(self) -> Generator[dict[str, Any], None, None]:

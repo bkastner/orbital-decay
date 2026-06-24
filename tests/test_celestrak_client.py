@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from src.celestrak_client import CelestrakClient
+from src.celestrak_client import CelestrakClient, DEFAULT_ENDPOINT_URL
 
 def test_parse_omm_stream_filters_num_orbits(mocker):
     mock_csv_parser = mocker.patch('src.celestrak_client.omm.parse_csv')
@@ -54,3 +54,17 @@ def test_get_active_catalog_fail(mocker):
 
     with pytest.raises(ConnectionError):
         list(client.get_active_catalog())
+
+def test_endpoint_url_default():
+    client = CelestrakClient()
+    assert client.endpoint_url == DEFAULT_ENDPOINT_URL
+
+def test_endpoint_url_from_env(monkeypatch):
+    monkeypatch.setenv("CELESTRAK_ENDPOINT_URL", "https://example.com/catalog.csv")
+    client = CelestrakClient()
+    assert client.endpoint_url == "https://example.com/catalog.csv"
+
+def test_endpoint_url_arg_overrides_env(monkeypatch):
+    monkeypatch.setenv("CELESTRAK_ENDPOINT_URL", "https://example.com/catalog.csv")
+    client = CelestrakClient(endpoint_url="https://override.example.com/catalog.csv")
+    assert client.endpoint_url == "https://override.example.com/catalog.csv"

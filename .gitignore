@@ -19,3 +19,10 @@ web/*.geojson
 
 # Test data
 tests/*.csv
+
+# Infrastructure
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log

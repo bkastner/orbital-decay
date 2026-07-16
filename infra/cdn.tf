@@ -23,7 +23,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
   origin {
     domain_name              = "orbital-decay-frontend-864144288881-us-west-2-an.s3.us-west-2.amazonaws.com"
-    origin_access_control_id = "E2ZINGLUKXXZ4S"
+    origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
     origin_id                = "orbital-decay-frontend-864144288881-us-west-2-an.s3.us-west-2.amazonaws.com-mqguiupkro2"
   }
   restrictions {
@@ -33,7 +33,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     }
   }
   viewer_certificate {
-    acm_certificate_arn      = "arn:aws:acm:us-east-1:864144288881:certificate/6f007b23-31ff-4e93-a78d-f16e73f3f34e"
+    acm_certificate_arn      = aws_acm_certificate.frontend.arn
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }

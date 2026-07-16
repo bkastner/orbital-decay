@@ -7,4 +7,12 @@ terraform {
       version = "~> 6.0"
     }
   }
+
+  backend "s3" {
+    bucket       = "orbital-decay-tfstate-864144288881"
+    key          = "orbital-decay/terraform.tfstate"
+    region       = "us-west-2"
+    encrypt      = true
+    use_lockfile = true
+  }
 }

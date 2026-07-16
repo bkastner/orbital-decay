@@ -46,3 +46,15 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
+
+resource "aws_acm_certificate" "frontend" {
+  provider                  = aws.us_east_1
+  domain_name               = "fallingspacejunk.com"
+  key_algorithm             = "RSA_2048"
+  subject_alternative_names = ["*.fallingspacejunk.com", "fallingspacejunk.com"]
+  validation_method         = "DNS"
+  options {
+    certificate_transparency_logging_preference = "ENABLED"
+    export                                      = "DISABLED"
+  }
+}

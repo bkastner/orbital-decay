@@ -38,3 +38,11 @@ resource "aws_cloudfront_distribution" "frontend" {
     ssl_support_method       = "sni-only"
   }
 }
+
+resource "aws_cloudfront_origin_access_control" "frontend" {
+  description                       = "Created by CloudFront"
+  name                              = "oac-orbital-decay-frontend-864144288881-us-west-2-an-mqguuy4f93t"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}

@@ -10,10 +10,10 @@ resource "aws_ecr_repository" "orbital_decay" {
 }
 
 resource "aws_ecs_cluster" "orbital-decay-cluster" {
-  name     = "orbital-decay-cluster"
+  name = "orbital-decay-cluster"
   configuration {
     execute_command_configuration {
-      logging    = "DEFAULT"
+      logging = "DEFAULT"
     }
   }
   setting {
@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "app" {
       value = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=csv"
       }, {
       name  = "S3_BUCKET_NAME"
-      value = "orbital-decay-frontend-864144288881-us-west-2-an"
+      value = local.frontend_bucket_name
       }, {
       name  = "WORKER_COUNT"
       value = "8"
@@ -68,7 +68,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   skip_destroy             = true
-  task_role_arn            = "arn:aws:iam::864144288881:role/OrbitalDecayFargateTaskRole"
+  task_role_arn            = aws_iam_role.task_role.arn
   track_latest             = false
   runtime_platform {
     cpu_architecture        = "ARM64"

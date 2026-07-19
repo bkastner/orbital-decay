@@ -7,10 +7,10 @@ resource "aws_scheduler_schedule" "omm_refresh" {
   schedule_expression_timezone = "America/Denver"
   state                        = "ENABLED"
   flexible_time_window {
-    mode                      = "OFF"
+    mode = "OFF"
   }
   target {
-    arn      = "arn:aws:ecs:us-west-2:864144288881:cluster/orbital-decay-cluster"
+    arn      = aws_ecs_cluster.orbital-decay-cluster.arn
     role_arn = "arn:aws:iam::864144288881:role/service-role/Amazon_EventBridge_Scheduler_ECS_4035645f48"
     ecs_parameters {
       enable_ecs_managed_tags = true

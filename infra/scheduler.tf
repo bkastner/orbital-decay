@@ -18,7 +18,7 @@ resource "aws_scheduler_schedule" "omm_refresh" {
       launch_type             = "FARGATE"
       platform_version        = "LATEST"
       task_count              = 1
-      task_definition_arn     = "arn:aws:ecs:us-west-2:864144288881:task-definition/orbital-decay-task:6"
+      task_definition_arn     = aws_ecs_task_definition.app.arn
       network_configuration {
         assign_public_ip = true
         security_groups  = ["sg-0a4f5ee0bd21e59a8"]

@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "app" {
     }]
     environmentFiles = []
     essential        = true
-    image            = "864144288881.dkr.ecr.us-west-2.amazonaws.com/orbital-decay:v4.0"
+    image            = "${aws_ecr_repository.orbital_decay.repository_url}:${var.image_tag}"
     logConfiguration = {
       logDriver = "awslogs"
       options = {

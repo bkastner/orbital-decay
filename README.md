@@ -55,6 +55,14 @@ graph TD;
 # Terraform
 I originally built this using "click ops" and then imported into terraform. 
 
+# CI/CD:
+- GitHub actions run unit tests on every pull request.  Branch protection is enabled for `main`.  After PRs are merged, GitHub actions builds the docker container and deploys via a dedicated Terraform root module.  Images are tagged with the commit SHA, so every deployed container references its exact source. 
+- Layout: Terraform is split into two root modules, `deploy` (task definition and schedule) and `infra` (IAM, ECR, S3, CloudFront) with independent state. 
+- Security: 
+    - Authentication is handled by OIDC, not stored long-lived AWS keys.  The trust policy only admits the `main` branch from `bkastner/orbital-decay`.
+    - The deploy role is least-privilege: it can push to ECR, register a task definition, and update the EventBridge schedule but has no IAM write access and read-only access to `infra` state.
+- Limitations: The `infra` stack should not be applied while the `deploy` stack is running because `deploy` reads `infra`'s outputs via remote state and that read is uncoordinated, so a concurrent change to a shared value (e.g. the task role ARN) could leave the in-flight deploy working with a stale value.
+
 # AI Usage
 I use AI tools like Claude and Gemini to brainstorm, write code, and debug.  
 I don't blindly accept their output but review and modify as needed.

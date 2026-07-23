@@ -10,8 +10,8 @@ resource "aws_scheduler_schedule" "omm_refresh" {
     mode = "OFF"
   }
   target {
-    arn      = aws_ecs_cluster.orbital-decay-cluster.arn
-    role_arn = "arn:aws:iam::864144288881:role/service-role/Amazon_EventBridge_Scheduler_ECS_4035645f48"
+    arn      = local.ecs_cluster_arn
+    role_arn = local.scheduler_role_arn
     ecs_parameters {
       enable_ecs_managed_tags = true
       enable_execute_command  = false

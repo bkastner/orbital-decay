@@ -11,6 +11,9 @@ __pycache__/
 # OS generated files
 .DS_Store
 
+# Other generated files
+.coverage
+
 # Static data
 src/static/skyfield_data/
 
